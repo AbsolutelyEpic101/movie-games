@@ -78,6 +78,8 @@ h1,h2,h3{font-family:var(--display);line-height:1.1;letter-spacing:-.03em;overfl
 .ticket:nth-child(3){animation-delay:.2s}
 .ticket:nth-child(4){animation-delay:.3s}
 .ticket:nth-child(5){animation-delay:.4s}
+.ticket:nth-child(6){animation-delay:.5s}
+.ticket:nth-child(7){animation-delay:.6s}
 .ticket:hover{transform:rotate(0) translateY(-6px)}
 @keyframes drop{from{opacity:0;translate:0 -50px}to{opacity:1;translate:0 0}}
 .t-main{flex:1;padding:26px 26px 20px;display:flex;flex-direction:column;gap:14px}
@@ -260,6 +262,43 @@ h1,h2,h3{font-family:var(--display);line-height:1.1;letter-spacing:-.03em;overfl
 .sortend p{color:var(--mute);margin-bottom:6px}
 @media (min-width:640px){.board{grid-template-columns:repeat(5,minmax(0,1fr));gap:22px 14px}}
 
+/* cast call */
+.cg{max-width:820px;margin:0 auto}
+.cg .q,.odd .q{text-align:center;font-family:var(--display);font-weight:700;font-size:clamp(1.05rem,3.6vw,1.5rem);letter-spacing:-.02em;margin:6px 0 20px}
+.castrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 10px;margin-bottom:24px}
+.castrow .tile{pointer-events:none}
+.tile.slot .pic{background:var(--plum);box-shadow:inset 0 0 0 2px var(--plum2)}
+.tile.slot .ph{background:none;color:var(--plum2);font-size:2.4rem}
+.tile.fresh .pic{animation:pop .5s cubic-bezier(.2,1.2,.4,1) both}
+.cg-q{width:100%;min-height:58px;background:var(--plum);border:2px solid var(--plum2);border-radius:14px;color:var(--paper);font:inherit;font-size:1.05rem;padding:0 18px}
+.cg-q:focus{outline:none;border-color:var(--amber)}
+.cg-q::placeholder{color:var(--mute)}
+.cg-res{display:flex;flex-direction:column;margin-top:8px;border-radius:14px;overflow:hidden;background:var(--plum)}
+.cg-item{display:flex;align-items:center;gap:12px;border:0;background:none;text-align:left;padding:8px 14px;min-height:64px;width:100%}
+.cg-item + .cg-item{border-top:1px solid var(--plum2)}
+.cg-item:hover{background:var(--plum2)}
+.cg-item img,.cg-item .nop{width:36px;aspect-ratio:2/3;object-fit:cover;border-radius:4px;background:var(--plum2);flex:none}
+.cg-item span{font-weight:700;line-height:1.25;min-width:0;overflow-wrap:anywhere}
+.cg-item small{display:block;color:var(--mute);font-weight:400}
+.wrongs{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0}
+.wrongs .chip{background:none;box-shadow:inset 0 0 0 2px var(--lose);color:var(--lose)}
+.cg-msg{margin:16px 0;min-height:1.5em;text-align:center}
+.cg-end{text-align:center}
+.cg-end h2{font-family:var(--display);font-weight:900;font-size:1.7rem;margin-bottom:6px}
+.cg-end > p{color:var(--mute)}
+@media (min-width:640px){.castrow{grid-template-columns:repeat(5,minmax(0,1fr))}}
+
+/* odd one out */
+.odd{max-width:820px;margin:0 auto}
+.cat{text-align:center;margin:4px 0 22px;padding:18px;border-radius:16px;background:var(--plum)}
+.cat span{font-size:.78rem;color:var(--mute);text-transform:uppercase;letter-spacing:.12em}
+.cat h2{font-size:clamp(1.5rem,6vw,2.4rem);font-weight:900;color:var(--amber);margin-top:6px}
+.cat.hid h2{color:var(--plum2)}
+.board.eight{grid-template-columns:repeat(2,minmax(0,1fr))}
+.sorttile.dead{pointer-events:none}
+.sorttile.dead.lose .pic{filter:saturate(.4) brightness(.65)}
+@media (min-width:520px){.board.eight{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
 }
@@ -341,7 +380,7 @@ function home() {
   view(`
   <section class="hero">
     <h1>Reel<br>Deal</h1>
-    <p>Five movie games for the sofa, the car or the pub. Pick a ticket.</p>
+    <p>Seven movie games for the sofa, the car or the pub. Pick a ticket.</p>
   </section>
   <section class="tickets">
     <button class="ticket paper" data-a="go-imposter">
@@ -383,6 +422,22 @@ function home() {
         <p>Ten posters, shuffled. Put them in release order, then check. You only get five checks.</p>
       </span>
       <span class="t-stub">Solo <i>5 checks</i></span>
+    </button>
+    <button class="ticket gold" data-a="go-cast">
+      <span class="t-main">
+        <svg viewBox="0 0 64 64" fill="none" stroke="#0f0d1a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="32" cy="22" r="11"/><path d="M10 58c2-14 10-20 22-20s20 6 22 20"/></svg>
+        <h2>Cast Call</h2>
+        <p>We name one actor and you guess the film. Wrong? We reveal another, up to five.</p>
+      </span>
+      <span class="t-stub">Solo <i>5 clues</i></span>
+    </button>
+    <button class="ticket gold" data-a="go-odd">
+      <span class="t-main">
+        <svg viewBox="0 0 64 64" fill="none" stroke="#0f0d1a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="16" cy="18" r="8"/><circle cx="48" cy="18" r="8"/><circle cx="16" cy="46" r="8"/><rect x="40" y="38" width="16" height="16" rx="2"/></svg>
+        <h2>Odd One Out</h2>
+        <p>Eight films, one doesn't belong. Spot it in three guesses on easy or five on hard.</p>
+      </span>
+      <span class="t-stub">Easy or hard <i>3 or 5 guesses</i></span>
     </button>
   </section>`);
 }
@@ -919,6 +974,225 @@ document.addEventListener("keydown", e => {
   if ((e.key === "Enter" || e.key === " ") && e.target.classList && e.target.classList.contains("sorttile")) { e.preventDefault(); e.target.click(); }
 });
 
+/* ---------- cast call ---------- */
+const G = { film: null, cast: [], shown: 1, wrong: [], over: false, won: false, results: [], msg: "" };
+async function startCast() {
+  loading("Picking a film…");
+  try {
+    const films = await loadFilms();
+    for (let t = 0; t < 12; t++) {
+      const f = pick(films);
+      const cast = (await getCast(f.id)).filter(a => a.profile_path).slice(0, 8);
+      if (cast.length >= 5) {
+        Object.assign(G, { film: f, cast: shuffle(cast).slice(0, 5), shown: 1, wrong: [], over: false, won: false, results: [],
+          msg: "One actor so far. Search for the film you think it is." });
+        return castScreen();
+      }
+    }
+    throw new Error("No film found");
+  } catch (e) { fail(e, "go-cast"); }
+}
+function castScreen() {
+  view(`
+  <section class="cg">
+    <p class="q">Which film is this cast from?</p>
+    <div class="castrow" id="cg-cast"></div>
+    <div id="cg-play">
+      <input class="cg-q" id="cg-q" type="search" placeholder="Search for a film…" autocomplete="off" aria-label="Search for a film">
+      <div class="cg-res" id="cg-res"></div>
+      <div class="wrongs" id="cg-wrong"></div>
+      <p class="cg-msg" id="cg-msg" aria-live="polite"></p>
+      <div class="stack" id="cg-ctl" style="max-width:420px;margin:0 auto"></div>
+    </div>
+    <div id="cg-end"></div>
+  </section>`, { keepHud: true });
+  renderCast();
+}
+function renderCast() {
+  hud.innerHTML = `<span>Actors<b>${G.shown}/5</b></span>`;
+  const prev = document.querySelectorAll("#cg-cast .tile:not(.slot)").length;
+  document.getElementById("cg-cast").innerHTML = G.cast.map((a, i) => i < G.shown
+    ? `<div class="tile ${i >= prev && i === G.shown - 1 && i > 0 ? "fresh" : ""}"><div class="pic"><img class="in" src="${PROF + a.profile_path}" alt=""></div><div class="meta"><h3>${esc(a.name)}</h3></div></div>`
+    : `<div class="tile slot"><div class="pic"><div class="ph">?</div></div></div>`).join("");
+  document.getElementById("cg-wrong").innerHTML = G.wrong.map(w => `<span class="chip">${esc(w)}</span>`).join("");
+  const play = document.getElementById("cg-play"), end = document.getElementById("cg-end");
+  if (G.over) {
+    play.style.display = "none";
+    const f = G.film;
+    end.innerHTML = `<div class="cg-end"><h2>${G.won ? "Got it" : "Not this time"}</h2>
+      <p>${G.won ? `You named it with ${G.shown} ${G.shown === 1 ? "actor" : "actors"} shown.` : "It was"}</p>
+      <div class="filmreveal" style="margin-top:20px"><img src="${IMG + f.poster_path}" alt=""><div><h3 class="${fit(f.title)}">${esc(f.title)}</h3><span class="muted">${year(f)}</span></div></div>
+      <div class="stack" style="max-width:420px;margin:0 auto"><button class="btn wide" data-a="go-cast">Play again</button><button class="btn ghost wide" data-a="home">Back to start</button></div></div>`;
+    return;
+  }
+  document.getElementById("cg-msg").textContent = G.msg;
+  document.getElementById("cg-ctl").innerHTML = `<button class="btn ghost wide" data-a="cg-reveal">${G.shown < 5 ? "Show another actor" : "Give up"}</button>`;
+}
+function renderResults() {
+  document.getElementById("cg-res").innerHTML = G.results.map((m, i) => `<button class="cg-item" data-a="cg-pick" data-i="${i}">
+    ${m.poster_path ? `<img src="${PROF + m.poster_path}" alt="">` : `<div class="nop"></div>`}<span>${esc(m.title)}<small>${year(m)}</small></span></button>`).join("");
+}
+function castGuess(m) {
+  if (G.over) return;
+  const label = `${m.title} (${year(m)})`;
+  document.getElementById("cg-q").value = ""; G.results = []; renderResults();
+  if (m.id === G.film.id) { G.over = true; G.won = true; return renderCast(); }
+  if (G.wrong.includes(label)) { G.msg = "You already tried that one."; return renderCast(); }
+  G.wrong.push(label);
+  if (G.shown >= 5) { G.over = true; G.won = false; }
+  else { G.shown++; G.msg = `Not ${m.title}. Here's another actor.`; }
+  renderCast();
+}
+let cgTimer = 0, cgSeq = 0;
+document.addEventListener("input", e => {
+  if (e.target.id !== "cg-q") return;
+  clearTimeout(cgTimer);
+  const q = e.target.value.trim();
+  if (q.length < 2) { G.results = []; renderResults(); return; }
+  cgTimer = setTimeout(async () => {
+    const my = ++cgSeq;
+    try {
+      const r = await tmdb("/search/movie", { query: q, include_adult: false });
+      if (my !== cgSeq) return;
+      G.results = r.results.filter(m => m.release_date).slice(0, 6); renderResults();
+    } catch { if (my === cgSeq) { G.results = []; renderResults(); document.getElementById("cg-msg").textContent = "Search failed. Check your connection."; } }
+  }, 280);
+});
+
+/* ---------- odd one out ---------- */
+const DIRECTORS = ["Steven Spielberg", "Christopher Nolan", "Quentin Tarantino", "Martin Scorsese", "James Cameron", "Ridley Scott", "David Fincher", "Tim Burton", "Peter Jackson", "Robert Zemeckis", "Ron Howard", "Edgar Wright", "Wes Anderson", "Clint Eastwood", "Denis Villeneuve", "Michael Bay", "Guy Ritchie", "Sam Raimi"];
+const ACTORS = ["Tom Hanks", "Leonardo DiCaprio", "Brad Pitt", "Tom Cruise", "Samuel L. Jackson", "Will Smith", "Robert Downey Jr.", "Keanu Reeves", "Scarlett Johansson", "Meryl Streep", "Johnny Depp", "Matt Damon", "Jim Carrey", "Harrison Ford", "Denzel Washington", "Emma Stone", "Jennifer Lawrence", "Nicolas Cage", "Ryan Gosling", "Mark Wahlberg", "Adam Sandler", "Christian Bale"];
+const GENRES = [{ id: 28, n: "Action" }, { id: 16, n: "Animated" }, { id: 35, n: "Comedy" }, { id: 27, n: "Horror" }, { id: 878, n: "Sci-fi" }, { id: 10749, n: "Romance" }, { id: 14, n: "Fantasy" }, { id: 80, n: "Crime" }, { id: 10752, n: "War" }, { id: 53, n: "Thriller" }, { id: 10751, n: "Family" }];
+const personCache = new Map(), pcredCache = new Map();
+const personId = (name, dept) => cached(personCache, name, async () => {
+  const r = (await tmdb("/search/person", { query: name })).results;
+  const p = r.find(x => x.known_for_department === dept) || r[0];
+  if (!p) throw new Error("person");
+  return p.id;
+});
+const getPersonCredits = id => cached(pcredCache, id, () => tmdb(`/person/${id}/movie_credits`));
+const goodFilm = m => m.poster_path && isEn(m) && m.release_date && !(m.genre_ids || []).includes(99);
+const byVotes = (a, b) => b.vote_count - a.vote_count;
+
+async function buildCategory() {
+  const kind = pick(["decade", "year", "director", "actor", "genre"]);
+  if (kind === "decade") {
+    const groups = await loadYearFilms();
+    const d = +pick(Object.keys(groups).filter(k => +k >= 1970));
+    const x = d >= 2000 ? d + "s" : String(d).slice(2) + "s";
+    return { label: `${x} movie`, matches: groups[d].slice(0, 25),
+      oddPool: Object.entries(groups).filter(([k]) => +k !== d).flatMap(([, v]) => v) };
+  }
+  if (kind === "year") {
+    const y = 1980 + rand(45);
+    const [r, groups] = await Promise.all([
+      tmdb("/discover/movie", { with_original_language: "en", sort_by: "vote_count.desc", primary_release_year: y, "vote_count.gte": 300 }),
+      loadYearFilms()]);
+    return { label: `Released in ${y}`, matches: r.results.filter(goodFilm).slice(0, 20),
+      oddPool: Object.values(groups).flat().filter(m => parseInt(year(m), 10) !== y) };
+  }
+  if (kind === "director" || kind === "actor") {
+    const isDir = kind === "director";
+    const name = pick(isDir ? DIRECTORS : ACTORS);
+    const cr = await getPersonCredits(await personId(name, isDir ? "Directing" : "Acting"));
+    const allIds = new Set([...cr.cast, ...cr.crew].map(m => m.id));
+    const matches = isDir
+      ? dedupe(cr.crew.filter(c => c.job === "Director")).filter(m => goodFilm(m) && m.vote_count >= 500).sort(byVotes).slice(0, 20)
+      : cleanFilms(cr.cast).filter(m => m.vote_count >= 500).slice(0, 20);
+    return { label: isDir ? `Directed by ${name}` : `Starring ${name}`, matches, oddPool: (await loadFilms()).filter(m => !allIds.has(m.id)) };
+  }
+  const g = pick(GENRES);
+  const res = await Promise.all([1, 2].map(page => tmdb("/discover/movie", { with_original_language: "en", with_genres: g.id, sort_by: "vote_count.desc", "vote_count.gte": 1000, page })));
+  return { label: `${g.n} movie`, matches: res.flatMap(r => r.results).filter(goodFilm).slice(0, 30),
+    oddPool: (await loadFilms()).filter(m => !(m.genre_ids || []).includes(g.id)) };
+}
+async function buildOdd() {
+  let lastErr;
+  for (let t = 0; t < 8; t++) {
+    try {
+      const c = await buildCategory();
+      if (c.matches.length < 7) continue;
+      const matches = shuffle(c.matches.slice(0, 20)).slice(0, 7);
+      const ids = new Set(matches.map(m => m.id));
+      const odd = pick(c.oddPool.filter(m => m.poster_path && !ids.has(m.id)));
+      if (!odd) continue;
+      return { label: c.label, tiles: shuffle([...matches, odd]), oddId: odd.id };
+    } catch (e) { lastErr = e; if (e.status === 401) throw e; }
+  }
+  throw lastErr || new Error("No round");
+}
+const O = { mode: "easy", tiles: [], oddId: 0, label: "", left: 3, sel: null, wrong: new Set(), over: false, won: false, msg: "" };
+function oddSetup() {
+  view(`
+  <section class="panel">
+    <h2>Odd One Out</h2>
+    <p>Eight films. Seven share something, and one doesn't belong. Find it.</p>
+    <div class="rows">
+      <div class="row">
+        <div><strong>Mode</strong><small>${O.mode === "easy" ? "You're told the category. 3 guesses." : "No category given. 5 guesses."}</small></div>
+        <div class="seg" role="group" aria-label="Mode">
+          <button data-a="odd-easy" aria-pressed="${O.mode === "easy"}">Easy</button>
+          <button data-a="odd-hard" aria-pressed="${O.mode === "hard"}">Hard</button>
+        </div>
+      </div>
+    </div>
+    <div class="stack"><button class="btn wide" data-a="odd-start">Start</button><button class="btn ghost wide" data-a="home">Back</button></div>
+  </section>`);
+}
+async function startOdd() {
+  loading("Setting the lineup…");
+  try {
+    const r = await buildOdd();
+    Object.assign(O, { tiles: r.tiles, oddId: r.oddId, label: r.label, left: O.mode === "easy" ? 3 : 5, sel: null, wrong: new Set(), over: false, won: false,
+      msg: O.mode === "easy" ? "Tap the film that doesn't fit the category." : "Look for what seven of them share, then tap the film that doesn't." });
+    view(`
+    <section class="odd">
+      <div class="cat" id="odd-cat"></div>
+      <p class="q">Which one is the odd one out?</p>
+      <div class="board eight" id="odd-board"></div>
+      <div class="result" id="odd-ctl" aria-live="polite"></div>
+    </section>`, { keepHud: true });
+    renderOdd();
+  } catch (e) { fail(e, "odd-start"); }
+}
+function renderOdd() {
+  hud.innerHTML = `<span>Guesses left<b>${O.left}</b></span>`;
+  const hard = O.mode === "hard";
+  const cat = document.getElementById("odd-cat");
+  cat.className = "cat" + (hard && !O.over ? " hid" : "");
+  cat.innerHTML = hard && !O.over ? `<span>Category</span><h2>Hidden</h2>` : `<span>${hard ? "The category was" : "Category"}</span><h2>${esc(O.label)}</h2>`;
+  document.getElementById("odd-board").innerHTML = O.tiles.map(m => {
+    const isOdd = m.id === O.oddId, dead = O.wrong.has(m.id);
+    const mark = O.over && isOdd ? "win" : dead ? "lose" : "";
+    return `<div class="sorttile ${O.sel === m.id ? "sel" : ""} ${mark} ${dead || O.over ? "dead" : ""}" role="button" tabindex="0" data-a="odd-tap" data-id="${m.id}" aria-label="${esc(m.title)}${O.sel === m.id ? ", selected" : ""}">
+      <div class="pic"><img class="in" draggable="false" src="${POS + m.poster_path}" alt="">${mark ? `<span class="flag ${mark}">${mark === "win" ? "✓" : "✕"}</span>` : ""}</div>
+      <div class="t">${esc(m.title)}</div>${O.over ? `<div class="yl">${year(m)}</div>` : ""}</div>`;
+  }).join("");
+  const ctl = document.getElementById("odd-ctl");
+  if (O.over) {
+    const odd = O.tiles.find(m => m.id === O.oddId), used = O.wrong.size + 1;
+    ctl.innerHTML = `<div class="sortend"><h2>${O.won ? "Found it" : "Out of guesses"}</h2>
+      <p>${O.won ? `You spotted it in ${used} ${used === 1 ? "guess" : "guesses"}. ` : ""}The odd one out was ${esc(odd.title)}.</p></div>
+      <div class="stack" style="width:100%;max-width:420px"><button class="btn wide" data-a="odd-start">Play again</button><button class="btn ghost wide" data-a="odd-setup">Change mode</button><button class="btn ghost wide" data-a="home">Back to start</button></div>`;
+  } else {
+    ctl.innerHTML = `<p class="sortmsg">${esc(O.msg)}</p><button class="btn wide" style="max-width:420px" data-a="odd-lock" ${O.sel === null ? "disabled" : ""}>Lock in guess</button>`;
+  }
+}
+function oddTap(id) {
+  if (O.over || O.wrong.has(id)) return;
+  O.sel = O.sel === id ? null : id; renderOdd();
+}
+function oddLock() {
+  if (O.over || O.sel === null) return;
+  if (O.sel === O.oddId) { O.over = true; O.won = true; }
+  else {
+    O.wrong.add(O.sel); O.left--; O.sel = null;
+    if (O.left <= 0) { O.over = true; O.won = false; }
+    else O.msg = `Not that one. ${O.left} ${O.left === 1 ? "guess" : "guesses"} left.`;
+  }
+  renderOdd();
+}
+
 /* ---------- actions ---------- */
 const actions = {
   "home": home,
@@ -960,6 +1234,16 @@ const actions = {
       chainLoad(() => getCast(C.cur.id), r => { C.cast = r; });
     }
   },
+  "go-cast": startCast,
+  "cg-pick": t => castGuess(G.results[+t.dataset.i]),
+  "cg-reveal": () => { if (G.over) return; if (G.shown < 5) { G.shown++; G.msg = "Here's another actor."; } else { G.over = true; G.won = false; } renderCast(); },
+  "go-odd": oddSetup,
+  "odd-setup": oddSetup,
+  "odd-easy": () => { O.mode = "easy"; oddSetup(); },
+  "odd-hard": () => { O.mode = "hard"; oddSetup(); },
+  "odd-start": startOdd,
+  "odd-tap": t => oddTap(+t.dataset.id),
+  "odd-lock": oddLock,
   "go-sort": startSort,
   "sort-tap": t => sortTap(+t.dataset.i),
   "sort-check": sortCheck,
