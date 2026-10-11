@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Movie Games</title>
+<title>Reel Deal</title>
 <meta name="theme-color" content="#0f0d1a">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -77,6 +77,7 @@ h1,h2,h3{font-family:var(--display);line-height:1.1;letter-spacing:-.03em;overfl
 .ticket:nth-child(2){animation-delay:.1s}
 .ticket:nth-child(3){animation-delay:.2s}
 .ticket:nth-child(4){animation-delay:.3s}
+.ticket:nth-child(5){animation-delay:.4s}
 .ticket:hover{transform:rotate(0) translateY(-6px)}
 @keyframes drop{from{opacity:0;translate:0 -50px}to{opacity:1;translate:0 0}}
 .t-main{flex:1;padding:26px 26px 20px;display:flex;flex-direction:column;gap:14px}
@@ -238,6 +239,27 @@ h1,h2,h3{font-family:var(--display);line-height:1.1;letter-spacing:-.03em;overfl
   .yr-film{text-align:left}
 }
 
+/* timeline sort */
+.sort{max-width:820px;margin:0 auto}
+.sort .q{text-align:center;font-family:var(--display);font-weight:700;font-size:clamp(1.05rem,3.6vw,1.5rem);letter-spacing:-.02em;margin:6px 0 14px}
+.legend{display:flex;align-items:center;gap:12px;color:var(--mute);font-size:.85rem;margin-bottom:16px}
+.legend i{flex:1;border-top:2px dashed var(--plum2)}
+.board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 10px}
+.sorttile{position:relative;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation;min-width:0}
+.sorttile .pic{border-radius:10px}
+.sorttile.sel .pic{box-shadow:0 0 0 4px var(--amber);transform:translateY(-4px) scale(1.03)}
+.sorttile.win .pic{box-shadow:0 0 0 4px var(--win)}
+.sorttile.lose .pic{box-shadow:0 0 0 4px var(--lose)}
+.sorttile .num{position:absolute;left:6px;top:6px;z-index:2;min-width:24px;height:24px;padding:0 6px;border-radius:12px;background:rgba(15,13,26,.85);font-family:var(--display);font-weight:700;font-size:.72rem;display:grid;place-items:center}
+.sorttile .flag{position:absolute;right:6px;top:6px;z-index:2;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:900;color:var(--ink);font-size:.9rem}
+.flag.win{background:var(--win)} .flag.lose{background:var(--lose)}
+.sorttile .t{font-size:.78rem;font-weight:700;line-height:1.25;margin-top:8px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
+.sorttile .yl{font-family:var(--display);font-weight:900;font-size:1.05rem;color:var(--amber);margin-top:2px}
+.sortmsg{font-size:.98rem;color:var(--paper);min-height:1.5em}
+.sortend h2{font-family:var(--display);font-weight:900;font-size:1.6rem;margin-bottom:6px}
+.sortend p{color:var(--mute);margin-bottom:6px}
+@media (min-width:640px){.board{grid-template-columns:repeat(5,minmax(0,1fr));gap:22px 14px}}
+
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
 }
@@ -245,7 +267,7 @@ h1,h2,h3{font-family:var(--display);line-height:1.1;letter-spacing:-.03em;overfl
 </head>
 <body>
 <header>
-  <button class="brand" data-a="home" aria-label="Movie Games home">Movie Games</button>
+  <button class="brand" data-a="home" aria-label="Reel Deal home">Reel Deal</button>
   <div id="hud" aria-live="polite"></div>
 </header>
 <main id="app"></main>
@@ -318,8 +340,8 @@ const store = {
 function home() {
   view(`
   <section class="hero">
-    <h1>Double<br>Feature</h1>
-    <p>Four movie games for the sofa, the car or the pub. Pick a ticket.</p>
+    <h1>Reel<br>Deal</h1>
+    <p>Five movie games for the sofa, the car or the pub. Pick a ticket.</p>
   </section>
   <section class="tickets">
     <button class="ticket paper" data-a="go-imposter">
@@ -353,6 +375,14 @@ function home() {
         <p>Name the release year of 5 or 10 films. Every year you miss by adds to your score, so keep it low.</p>
       </span>
       <span class="t-stub">Solo or versus <i>5 or 10 films</i></span>
+    </button>
+    <button class="ticket paper" data-a="go-sort">
+      <span class="t-main">
+        <svg viewBox="0 0 64 64" fill="none" stroke="#0f0d1a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="34" width="12" height="22" rx="2"/><rect x="26" y="22" width="12" height="34" rx="2"/><rect x="44" y="8" width="12" height="48" rx="2"/></svg>
+        <h2>Timeline</h2>
+        <p>Ten posters, shuffled. Put them in release order, then check. You only get five checks.</p>
+      </span>
+      <span class="t-stub">Solo <i>5 checks</i></span>
     </button>
   </section>`);
 }
@@ -682,15 +712,16 @@ const loadYearFilms = () => once("yearfilms", async () => {
   if (!Object.keys(groups).length) throw new Error("No films");
   return groups;
 });
-function pickYearFilms(groups, n) {
-  const decs = Object.keys(groups), chosen = [], used = new Set();
+function pickYearFilms(groups, n, distinct = false) {
+  const decs = Object.keys(groups), chosen = [], used = new Set(), years = new Set();
+  const ok = m => !used.has(m.id) && !(distinct && years.has(year(m)));
   let bag = [];
   while (chosen.length < n) {
     if (!bag.length) bag = shuffle(decs);
     const d = bag.pop();
-    const avail = groups[d].filter(m => !used.has(m.id));
-    if (!avail.length) { if (!decs.some(k => groups[k].some(m => !used.has(m.id)))) break; continue; }
-    const m = pick(avail); used.add(m.id); chosen.push(m);
+    const avail = groups[d].filter(ok);
+    if (!avail.length) { if (!decs.some(k => groups[k].some(ok))) break; continue; }
+    const m = pick(avail); used.add(m.id); years.add(year(m)); chosen.push(m);
   }
   return shuffle(chosen);
 }
@@ -797,6 +828,97 @@ document.addEventListener("keydown", e => {
   if (e.key === "Enter" && e.target.id === "yr-num") { const b = document.querySelector('[data-a="year-guess"]'); if (b) b.click(); }
 });
 
+/* ---------- timeline sort ---------- */
+const T = { films: [], order: [], sel: null, left: 5, verdict: {}, lastSig: "", over: false, won: false, right: 0, drag: null, msg: "" };
+async function startSort() {
+  loading("Shuffling posters…");
+  try {
+    const groups = await loadYearFilms();
+    const films = pickYearFilms(groups, 10, true);
+    Object.assign(T, { films, order: shuffle(films), sel: null, left: 5, verdict: {}, lastSig: "", over: false, won: false, right: 0, drag: null,
+      msg: "Tap two posters to swap them, or drag one onto another." });
+    sortScreen();
+  } catch (e) { fail(e, "go-sort"); }
+}
+const sortSig = () => T.order.map(m => m.id).join(",");
+const sortedYears = () => T.films.map(m => parseInt(year(m), 10)).sort((a, b) => a - b);
+function sortScreen() {
+  view(`
+  <section class="sort">
+    <p class="q">Sort the films from oldest to newest</p>
+    <div class="legend"><span>Oldest</span><i></i><span>Newest</span></div>
+    <div class="board" id="board"></div>
+    <div class="result" id="sort-ctl" aria-live="polite"></div>
+  </section>`, { keepHud: true });
+  renderSort();
+}
+function renderSort() {
+  hud.innerHTML = `<span>Checks left<b>${T.left}</b></span>`;
+  document.getElementById("board").innerHTML = T.order.map((m, i) => {
+    const v = T.verdict[m.id];
+    const mark = T.over ? (T.won ? "win" : "") : (v && v.pos === i ? (v.ok ? "win" : "lose") : "");
+    return `<div class="sorttile ${T.sel === i ? "sel" : ""} ${mark}" role="button" tabindex="0" draggable="${!T.over}" data-a="sort-tap" data-i="${i}" title="${esc(m.title)}" aria-label="Position ${i + 1}: ${esc(m.title)}${T.sel === i ? ", selected" : ""}">
+      <div class="pic"><img class="in" draggable="false" src="${POS + m.poster_path}" alt="">
+        <span class="num">${i + 1}</span>${mark ? `<span class="flag ${mark}" aria-label="${mark === "win" ? "Correct place" : "Wrong place"}">${mark === "win" ? "✓" : "✕"}</span>` : ""}</div>
+      <div class="t">${esc(m.title)}</div>${T.over ? `<div class="yl">${year(m)}</div>` : ""}
+    </div>`;
+  }).join("");
+  const ctl = document.getElementById("sort-ctl");
+  if (T.over) {
+    const used = 5 - T.left;
+    ctl.innerHTML = `<div class="sortend"><h2>${T.won ? "Perfect order" : "Out of checks"}</h2>
+      <p>${T.won ? `You got it in ${used} ${used === 1 ? "check" : "checks"}.` : `Your last check had ${T.right} of 10 in the right place. This is the true order.`}</p></div>
+      <div class="stack" style="width:100%;max-width:420px"><button class="btn wide" data-a="go-sort">Play again</button><button class="btn ghost wide" data-a="home">Back to start</button></div>`;
+  } else {
+    const same = sortSig() === T.lastSig;
+    ctl.innerHTML = `<p class="sortmsg">${esc(T.msg)}</p>
+      <button class="btn wide" style="max-width:420px" data-a="sort-check" ${same ? "disabled" : ""}>Check order (${T.left} left)</button>`;
+  }
+}
+function sortSwap(a, b) {
+  if (T.over || a === b) return;
+  [T.order[a], T.order[b]] = [T.order[b], T.order[a]];
+  T.sel = null; renderSort();
+}
+function sortTap(i) {
+  if (T.over) return;
+  if (T.sel === null) T.sel = i;
+  else if (T.sel === i) T.sel = null;
+  else return sortSwap(T.sel, i);
+  renderSort();
+}
+function sortCheck() {
+  if (T.over || T.left <= 0) return;
+  const sig = sortSig();
+  if (sig === T.lastSig) return;
+  T.lastSig = sig; T.left--; T.sel = null; T.verdict = {};
+  const ys = sortedYears(); let right = 0;
+  T.order.forEach((m, i) => { const ok = parseInt(year(m), 10) === ys[i]; if (ok) right++; T.verdict[m.id] = { pos: i, ok }; });
+  T.right = right;
+  if (right === T.order.length || T.left === 0) {
+    T.over = true; T.won = right === T.order.length;
+    T.order = [...T.films].sort((a, b) => parseInt(year(a), 10) - parseInt(year(b), 10));
+  } else {
+    T.msg = `${right} of 10 in the right place. ${T.left} ${T.left === 1 ? "check" : "checks"} left.`;
+  }
+  renderSort();
+}
+document.addEventListener("dragstart", e => {
+  const t = e.target.closest && e.target.closest(".sorttile");
+  if (!t || T.over) return;
+  T.drag = +t.dataset.i; e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", String(T.drag));
+});
+document.addEventListener("dragover", e => { if (T.drag !== null && e.target.closest && e.target.closest(".sorttile")) e.preventDefault(); });
+document.addEventListener("drop", e => {
+  const t = e.target.closest && e.target.closest(".sorttile");
+  if (!t || T.drag === null) return;
+  e.preventDefault(); const from = T.drag; T.drag = null; sortSwap(from, +t.dataset.i);
+});
+document.addEventListener("dragend", () => { T.drag = null; });
+document.addEventListener("keydown", e => {
+  if ((e.key === "Enter" || e.key === " ") && e.target.classList && e.target.classList.contains("sorttile")) { e.preventDefault(); e.target.click(); }
+});
+
 /* ---------- actions ---------- */
 const actions = {
   "home": home,
@@ -838,6 +960,9 @@ const actions = {
       chainLoad(() => getCast(C.cur.id), r => { C.cast = r; });
     }
   },
+  "go-sort": startSort,
+  "sort-tap": t => sortTap(+t.dataset.i),
+  "sort-check": sortCheck,
   "go-year": yearSetup,
   "year-setup": yearSetup,
   "y-5": () => { Y.n = 5; yearSetup(); },
