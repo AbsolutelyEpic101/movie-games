@@ -436,7 +436,7 @@ function home() {
       <span class="t-main">
         <svg viewBox="0 0 64 64" fill="none" stroke="#0f0d1a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M32 6l7 14 15 2-11 11 3 16-14-8-14 8 3-16L10 22l15-2z"/></svg>
         <h2>Higher or Lower</h2>
-        <p>Two films from this week's popular list. Which one has the better TMDB rating? One slip and the streak is over.</p>
+        <p>Two films picked from across the decades. Which one has the better TMDB rating? One slip and the streak is over.</p>
       </span>
       <span class="t-stub">Solo or versus <i>Beat your best</i></span>
     </button>
@@ -603,15 +603,46 @@ function revealScreen(showFilm = false) {
 }
 
 /* ---------- higher / lower ---------- */
-const H = { pool: [], used: new Set(), a: null, b: null, streak: 0, best: store.get("df-best", 0), locked: false };
+const loadHLPool = () => once("hlpool", async () => {
+  const [trending, films, groups] = await Promise.all([loadTrending(), loadFilms(), loadYearFilms()]);
+  const all = dedupe([...trending, ...films, ...Object.values(groups).flat()]);
+  const good = all.filter(m => m.poster_path && isEn(m) && m.vote_count >= 100 && m.vote_average > 0);
+  return good.length >= 20 ? good : all.filter(m => m.poster_path && m.vote_average > 0);
+});
+const H = { mode: "all", pool: [], used: new Set(), a: null, b: null, streak: 0, best: 0, locked: false };
+const hlBestKey = () => "df-best-" + H.mode;
+const loadModernPool = () => once("modernpool", async () => {
+  const [trending, all] = await Promise.all([loadTrending(), loadHLPool()]);
+  const cutoff = new Date().getFullYear() - 9;
+  const recent = all.filter(m => parseInt(year(m), 10) >= cutoff);
+  return dedupe([...trending, ...recent]);
+});
+function hlSetup() {
+  const best = store.get(hlBestKey(), 0);
+  view(`
+  <section class="panel">
+    <h2>Higher or Lower</h2>
+    <p>Two films, one question: which has the higher TMDB rating? One wrong pick ends your streak.</p>
+    <div class="rows">
+      <div class="row">
+        <div><strong>Films from</strong><small>${H.mode === "all" ? "Every era, from the 1940s to now." : "This week's trending films and recent hits."}${best ? " Best streak: " + best + "." : ""}</small></div>
+        <div class="seg" role="group" aria-label="Era">
+          <button data-a="hl-all" aria-pressed="${H.mode === "all"}">All</button>
+          <button data-a="hl-modern" aria-pressed="${H.mode === "modern"}">Modern</button>
+        </div>
+      </div>
+    </div>
+    <div class="stack"><button class="btn wide" data-a="hl-start">Start</button><button class="btn ghost wide" data-a="home">Back</button></div>
+  </section>`);
+}
 
 async function startHL() {
-  loading("Loading this week's films…");
+  loading("Picking films…");
   try {
-    H.pool = await loadTrending();
-    H.used.clear(); H.streak = 0; H.best = store.get("df-best", 0);
+    H.pool = H.mode === "modern" ? await loadModernPool() : await loadHLPool();
+    H.used.clear(); H.streak = 0; H.best = store.get(hlBestKey(), 0);
     nextPair(true);
-  } catch (e) { fail(e, "go-hl"); }
+  } catch (e) { fail(e, "hl-start"); }
 }
 function drawPair() {
   let avail = H.pool.filter(m => !H.used.has(m.id));
@@ -675,7 +706,7 @@ function guess(i) {
   const res = document.getElementById("result");
   if (correct) {
     H.streak++;
-    if (H.streak > H.best) { H.best = H.streak; store.set("df-best", H.best); }
+    if (H.streak > H.best) { H.best = H.streak; store.set(hlBestKey(), H.best); }
     updateHud();
     res.innerHTML = `<div class="msg ok">Correct</div><button class="btn" data-a="next-pair">Next pair</button>`;
     res.querySelector("button").focus({ preventScroll: true });
@@ -684,7 +715,7 @@ function guess(i) {
     res.innerHTML = `<div class="over"><div class="msg no">Wrong pick</div>
       <p class="muted" style="margin:10px 0 4px">Your streak ended at</p><div class="n">${final}</div>
       <p class="muted" style="margin:6px 0 18px">Best: ${H.best}</p>
-      <div class="stack"><button class="btn wide" data-a="hl-again">Play again</button><button class="btn ghost wide" data-a="home">Back to start</button></div></div>`;
+      <div class="stack"><button class="btn wide" data-a="hl-again">Play again</button><button class="btn ghost wide" data-a="hl-setup">Change era</button><button class="btn ghost wide" data-a="home">Back to start</button></div></div>`;
     H.streak = 0; updateHud();
     res.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
@@ -1375,7 +1406,11 @@ const actions = {
   "next-player": () => { I.idx++; I.idx >= I.players ? playScreen() : passScreen(); },
   "reveal-imposter": () => revealScreen(false),
   "show-film": () => revealScreen(true),
-  "go-hl": startHL,
+  "go-hl": hlSetup,
+  "hl-setup": hlSetup,
+  "hl-all": () => { H.mode = "all"; hlSetup(); },
+  "hl-modern": () => { H.mode = "modern"; hlSetup(); },
+  "hl-start": startHL,
   "guess": t => guess(+t.dataset.i),
   "next-pair": () => nextPair(),
   "hl-again": () => { H.streak = 0; nextPair(); },
